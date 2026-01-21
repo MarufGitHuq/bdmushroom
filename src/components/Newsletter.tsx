@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Mail, ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
@@ -19,40 +19,35 @@ const Newsletter = () => {
   };
 
   return (
-    <section className="py-20 bg-cream">
-      <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          {/* Icon */}
-          <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center mx-auto mb-6">
-            <Mail className="w-8 h-8 text-primary" />
-          </div>
-
+    <section className="py-20 md:py-28 bg-primary ml-16 md:ml-20">
+      <div className="container mx-auto px-6 md:px-10">
+        <div className="max-w-2xl">
           {/* Heading */}
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <span className="text-primary-foreground/80 font-semibold uppercase tracking-widest text-sm">
+            Newsletter
+          </span>
+          <h2 className="font-display text-3xl md:text-5xl text-primary-foreground mt-3 mb-6">
             Stay Fresh with Updates
           </h2>
-          <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-            Subscribe to our newsletter for exclusive deals, farming tips, 
-            and new product launches delivered to your inbox.
+          <p className="text-lg text-primary-foreground/80 mb-10">
+            Subscribe for exclusive deals, farming tips, and new product launches.
           </p>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <div className="relative flex-1">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-12 pl-4 pr-4 rounded-xl bg-card border-border focus:border-primary"
-                required
-              />
-            </div>
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
+            <Input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-14 px-6 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus:border-primary-foreground focus:ring-primary-foreground/30"
+              required
+            />
             <Button 
               type="submit" 
-              variant="organic" 
-              size="xl"
-              className="gap-2"
+              variant="secondary"
+              size="lg"
+              className="h-14 px-8 gap-2"
               disabled={isSubmitted}
             >
               {isSubmitted ? (
@@ -70,7 +65,7 @@ const Newsletter = () => {
           </form>
 
           {/* Privacy Note */}
-          <p className="text-xs text-muted-foreground mt-4">
+          <p className="text-xs text-primary-foreground/60 mt-4">
             We respect your privacy. Unsubscribe at any time.
           </p>
         </div>
