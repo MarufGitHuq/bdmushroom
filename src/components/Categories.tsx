@@ -1,4 +1,4 @@
-import { Leaf, Sun, Sparkles, Wrench } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import productFresh from "@/assets/product-fresh.jpg";
 import productDry from "@/assets/product-dry.jpg";
 import productPowder from "@/assets/product-powder.jpg";
@@ -6,92 +6,78 @@ import productEquipment from "@/assets/product-equipment.jpg";
 
 const categories = [
   {
-    title: "Fresh",
-    description: "Farm-fresh mushrooms delivered daily",
-    icon: Leaf,
+    title: "Fresh Mushrooms",
+    subtitle: "Farm-fresh, delivered daily",
     image: productFresh,
-    count: 24,
+    link: "#",
   },
   {
-    title: "Dry",
-    description: "Long-lasting, concentrated flavor",
-    icon: Sun,
+    title: "Dried Mushrooms",
+    subtitle: "Long-lasting, intense flavor",
     image: productDry,
-    count: 18,
+    link: "#",
   },
   {
-    title: "Powder",
-    description: "Superfood supplements & seasonings",
-    icon: Sparkles,
+    title: "Mushroom Powder",
+    subtitle: "Superfood supplements",
     image: productPowder,
-    count: 12,
+    link: "#",
   },
   {
-    title: "Equipment",
-    description: "Everything for mushroom farming",
-    icon: Wrench,
+    title: "Farming Equipment",
+    subtitle: "Start your own farm",
     image: productEquipment,
-    count: 35,
+    link: "#",
   },
 ];
 
 const Categories = () => {
   return (
-    <section className="py-20 bg-background">
-      <div className="container mx-auto px-4">
+    <section className="py-20 md:py-28 bg-background ml-16 md:ml-20">
+      <div className="container mx-auto px-6 md:px-10">
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-accent text-accent-foreground text-sm font-medium mb-4">
-            Browse Categories
+        <div className="mb-16">
+          <span className="text-primary font-semibold uppercase tracking-widest text-sm">
+            Our Products
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            What Are You Looking For?
+          <h2 className="font-display text-3xl md:text-5xl text-foreground mt-3">
+            Explore Our Collection
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Whether you want to eat mushrooms or grow them, we've got you covered 
-            with premium products for every need.
-          </p>
         </div>
 
         {/* Category Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {categories.map((category, index) => (
-            <div
+            <a
               key={category.title}
-              className="group relative bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-elevated transition-all duration-500 cursor-pointer animate-fade-up"
+              href={category.link}
+              className="group relative aspect-[4/3] overflow-hidden cursor-pointer animate-fade-up"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Image */}
-              <div className="aspect-square overflow-hidden">
-                <img
-                  src={category.image}
-                  alt={category.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
-              </div>
+              <img
+                src={category.image}
+                alt={category.title}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent" />
 
               {/* Content */}
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                {/* Icon */}
-                <div className="w-12 h-12 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
-                  <category.icon className="w-6 h-6 text-primary-foreground" />
-                </div>
-
-                <h3 className="text-xl font-bold text-primary-foreground mb-1">
+              <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                <h3 className="text-2xl md:text-3xl font-display text-primary-foreground mb-2">
                   {category.title}
                 </h3>
-                <p className="text-sm text-primary-foreground/70 mb-2">
-                  {category.description}
+                <p className="text-primary-foreground/70 text-sm md:text-base mb-4">
+                  {category.subtitle}
                 </p>
-                <span className="text-xs font-medium text-primary-foreground/60">
-                  {category.count} products
-                </span>
+                <div className="flex items-center gap-2 text-primary font-medium">
+                  <span>Explore</span>
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />
+                </div>
               </div>
-
-              {/* Hover Overlay */}
-              <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </div>
+            </a>
           ))}
         </div>
       </div>

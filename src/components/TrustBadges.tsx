@@ -1,19 +1,19 @@
-import { Shield, Truck, Leaf, Award, Clock, HeadphonesIcon } from "lucide-react";
+import { Leaf, Truck, Shield, Clock, Award, Headphones } from "lucide-react";
 
 const badges = [
   {
     icon: Leaf,
-    title: "Certified Organic",
-    description: "100% organic farming practices",
+    title: "100% Organic",
+    description: "Certified organic farming",
   },
   {
     icon: Truck,
-    title: "Free Shipping",
-    description: "On orders over ৳500",
+    title: "Free Delivery",
+    description: "Orders over ৳500",
   },
   {
     icon: Shield,
-    title: "Quality Guarantee",
+    title: "Quality Guaranteed",
     description: "Fresh or money back",
   },
   {
@@ -27,7 +27,7 @@ const badges = [
     description: "Best mushroom farm 2024",
   },
   {
-    icon: HeadphonesIcon,
+    icon: Headphones,
     title: "24/7 Support",
     description: "We're here to help",
   },
@@ -35,27 +35,27 @@ const badges = [
 
 const TrustBadges = () => {
   return (
-    <section className="py-16 bg-primary">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+    <section className="py-16 md:py-20 bg-secondary ml-16 md:ml-20">
+      <div className="container mx-auto px-6 md:px-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-6">
           {badges.map((badge, index) => (
             <div
               key={badge.title}
               className="flex flex-col items-center text-center group animate-fade-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              style={{ animationDelay: `${index * 0.08}s` }}
             >
               {/* Icon */}
-              <div className="w-14 h-14 rounded-full bg-primary-foreground/10 flex items-center justify-center mb-4 group-hover:bg-primary-foreground/20 transition-colors duration-300">
-                <badge.icon className="w-7 h-7 text-primary-foreground" />
+              <div className="w-14 h-14 rounded-full bg-secondary-foreground/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
+                <badge.icon className="w-6 h-6 text-secondary-foreground" />
               </div>
 
               {/* Title */}
-              <h3 className="text-sm font-semibold text-primary-foreground mb-1">
+              <h3 className="text-sm font-semibold text-secondary-foreground mb-1">
                 {badge.title}
               </h3>
 
               {/* Description */}
-              <p className="text-xs text-primary-foreground/70">
+              <p className="text-xs text-secondary-foreground/70">
                 {badge.description}
               </p>
             </div>

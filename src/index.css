@@ -1,116 +1,115 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* BD Mushroom - Organic Agri-Tech Design System */
+/* BD Mushroom - Mitrofresh-Inspired Design System */
 
 @layer base {
   :root {
-    /* Core Brand Colors - Forest Green, Earthy Brown, Crisp White */
-    --background: 40 33% 98%;
-    --foreground: 11 27% 15%;
+    /* Core Brand Colors - Inspired by Mitrofresh with Red Accent */
+    --background: 0 0% 100%;
+    --foreground: 150 10% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 11 27% 15%;
+    --card-foreground: 150 10% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 11 27% 15%;
+    --popover-foreground: 150 10% 20%;
 
-    /* Forest Green - Primary */
-    --primary: 112 38% 25%;
+    /* Vibrant Red - Primary (Mitrofresh style) */
+    --primary: 348 83% 47%;
     --primary-foreground: 0 0% 100%;
 
-    /* Earthy Brown - Secondary */
-    --secondary: 11 27% 24%;
+    /* Deep Forest Green - Secondary */
+    --secondary: 150 35% 18%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Cream/Muted */
-    --muted: 40 33% 94%;
-    --muted-foreground: 11 20% 40%;
+    /* Neutral/Muted */
+    --muted: 150 10% 96%;
+    --muted-foreground: 150 10% 45%;
 
-    /* Sage Green - Accent */
-    --accent: 112 25% 90%;
-    --accent-foreground: 112 38% 20%;
+    /* Light Green - Accent */
+    --accent: 130 40% 94%;
+    --accent-foreground: 150 35% 20%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 20% 88%;
-    --input: 40 20% 88%;
-    --ring: 112 38% 25%;
+    --border: 150 15% 90%;
+    --input: 150 15% 90%;
+    --ring: 348 83% 47%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* Custom tokens for BD Mushroom */
-    --forest: 112 38% 25%;
-    --forest-light: 112 30% 35%;
-    --forest-dark: 112 45% 18%;
-    --earth: 11 27% 24%;
-    --earth-light: 11 20% 35%;
-    --cream: 40 33% 96%;
-    --cream-dark: 40 25% 92%;
-    --natural: 30 15% 50%;
+    /* Custom tokens for BD Mushroom - Mitrofresh style */
+    --brand-red: 348 83% 47%;
+    --brand-red-dark: 348 85% 40%;
+    --forest: 150 35% 18%;
+    --forest-light: 150 30% 28%;
+    --sage: 130 25% 75%;
+    --cream: 45 30% 97%;
+    --charcoal: 0 0% 15%;
 
     /* Shadows */
-    --shadow-soft: 0 4px 20px -4px hsl(11 27% 24% / 0.08);
-    --shadow-card: 0 8px 30px -8px hsl(11 27% 24% / 0.12);
-    --shadow-elevated: 0 16px 50px -12px hsl(11 27% 24% / 0.18);
+    --shadow-soft: 0 4px 20px -4px hsl(0 0% 0% / 0.08);
+    --shadow-card: 0 8px 30px -8px hsl(0 0% 0% / 0.12);
+    --shadow-elevated: 0 20px 60px -15px hsl(0 0% 0% / 0.2);
 
-    /* Sidebar - kept for compatibility */
+    /* Sidebar */
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 112 38% 25%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 112 25% 95%;
-    --sidebar-accent-foreground: 112 38% 20%;
-    --sidebar-border: 40 20% 88%;
-    --sidebar-ring: 112 38% 25%;
+    --sidebar-foreground: 150 10% 30%;
+    --sidebar-primary: 348 83% 47%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 130 40% 94%;
+    --sidebar-accent-foreground: 150 35% 20%;
+    --sidebar-border: 150 15% 90%;
+    --sidebar-ring: 348 83% 47%;
   }
 
   .dark {
-    --background: 11 30% 8%;
-    --foreground: 40 33% 95%;
+    --background: 0 0% 8%;
+    --foreground: 0 0% 95%;
 
-    --card: 11 25% 12%;
-    --card-foreground: 40 33% 95%;
+    --card: 0 0% 12%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 11 25% 12%;
-    --popover-foreground: 40 33% 95%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 112 35% 45%;
+    --primary: 348 80% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 11 20% 30%;
-    --secondary-foreground: 40 33% 95%;
+    --secondary: 150 25% 25%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 11 20% 18%;
-    --muted-foreground: 40 20% 65%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 112 25% 20%;
-    --accent-foreground: 112 30% 85%;
+    --accent: 150 20% 20%;
+    --accent-foreground: 150 30% 85%;
 
     --destructive: 0 62.8% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 11 20% 20%;
-    --input: 11 20% 20%;
-    --ring: 112 35% 45%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 348 80% 55%;
 
-    --forest: 112 35% 45%;
-    --forest-light: 112 30% 55%;
-    --earth: 11 20% 35%;
-    --cream: 11 15% 15%;
+    --brand-red: 348 80% 55%;
+    --forest: 150 25% 30%;
+    --cream: 0 0% 15%;
 
-    --sidebar-background: 11 30% 10%;
-    --sidebar-foreground: 40 33% 90%;
-    --sidebar-primary: 112 35% 50%;
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 348 80% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 112 20% 18%;
-    --sidebar-accent-foreground: 112 30% 85%;
-    --sidebar-border: 11 20% 20%;
-    --sidebar-ring: 112 35% 45%;
+    --sidebar-accent: 150 20% 18%;
+    --sidebar-accent-foreground: 150 30% 85%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 348 80% 55%;
   }
 }
 
@@ -130,20 +129,29 @@
 }
 
 @layer components {
-  .hero-gradient {
+  /* Mitrofresh-style full-bleed hero overlay */
+  .hero-overlay {
     background: linear-gradient(
-      135deg,
-      hsl(var(--forest) / 0.95) 0%,
-      hsl(var(--forest-dark) / 0.98) 100%
+      to bottom,
+      transparent 0%,
+      hsl(0 0% 0% / 0.3) 100%
     );
   }
 
+  /* Red info card accent (like Mitrofresh recipe info) */
+  .info-card-accent {
+    background: hsl(var(--primary));
+    clip-path: polygon(0 10%, 100% 0, 100% 100%, 0 90%);
+  }
+
+  /* Glass morphism card */
   .glass-card {
-    background: hsl(var(--card) / 0.8);
-    backdrop-filter: blur(12px);
+    background: hsl(var(--card) / 0.85);
+    backdrop-filter: blur(16px);
     border: 1px solid hsl(var(--border) / 0.5);
   }
 
+  /* Elevated card shadows */
   .organic-shadow {
     box-shadow: var(--shadow-card);
   }
@@ -152,11 +160,21 @@
     box-shadow: var(--shadow-elevated);
   }
 
-  .text-gradient {
-    background: linear-gradient(135deg, hsl(var(--forest)) 0%, hsl(var(--forest-light)) 100%);
+  /* Gradient text */
+  .text-gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--brand-red-dark)) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* Left sidebar navigation style */
+  .side-nav {
+    @apply fixed left-0 top-0 h-screen w-16 bg-secondary z-50 flex flex-col items-center py-6;
+  }
+
+  .side-nav-icon {
+    @apply w-10 h-10 flex items-center justify-center text-secondary-foreground/70 hover:text-primary-foreground hover:bg-primary/20 rounded-lg transition-all duration-300 cursor-pointer;
   }
 }
 
@@ -219,4 +237,9 @@
   .stagger-2 { animation-delay: 0.2s; }
   .stagger-3 { animation-delay: 0.3s; }
   .stagger-4 { animation-delay: 0.4s; }
+
+  /* Display font utility */
+  .font-display {
+    font-family: 'Playfair Display', serif;
+  }
 }
