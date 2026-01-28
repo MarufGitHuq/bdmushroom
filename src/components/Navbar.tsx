@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart, User, Search } from "lucide-react";
 import logo from "@/assets/bd-mushroom-logo.png";
@@ -7,37 +7,51 @@ import { useCart } from "@/context/CartContext";
 const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { getCartCount, setIsCartOpen } = useCart();
-  
+
   const cartCount = getCartCount();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="fixed top-0 left-16 md:left-20 right-0 z-40 bg-transparent">
-      <div className="flex items-center justify-between px-6 md:px-10 py-4">
+    <header
+      className={`fixed top-0 left-16 md:left-20 right-0 z-40 transition-all duration-300 ${isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm py-2" : "bg-transparent py-4"
+        }`}
+    >
+      <div className="flex items-center justify-between px-6 md:px-10">
         {/* Logo - Centered */}
-        <div className="flex-1" />
-        
+        {!isScrolled && <div className="flex-1" />}
+
         <Link to="/" className="flex items-center justify-center">
-          <img 
-            src={logo} 
-            alt="BD Mushroom - All About Mushroom" 
-            className="h-16 md:h-20 w-auto"
+          <img
+            src={logo}
+            alt="BD Mushroom - All About Mushroom"
+            className={`w-auto transition-all duration-300 ${isScrolled ? "h-10 md:h-12" : "h-16 md:h-20"
+              }`}
           />
         </Link>
 
         {/* Right Section */}
         <div className="flex-1 flex items-center justify-end gap-4">
           {/* Search */}
-          <button 
+          <button
             onClick={() => setIsSearchOpen(!isSearchOpen)}
-            className="w-10 h-10 flex items-center justify-center text-primary-foreground/90 hover:text-primary-foreground transition-colors"
+            className="w-10 h-10 flex items-center justify-center text-[#656565] hover:text-primary transition-colors"
           >
             <Search className="w-5 h-5" />
           </button>
 
           {/* Cart */}
-          <button 
+          <button
             onClick={() => setIsCartOpen(true)}
-            className="relative w-10 h-10 flex items-center justify-center text-primary-foreground/90 hover:text-primary-foreground transition-colors"
+            className="relative w-10 h-10 flex items-center justify-center text-[#656565] hover:text-primary transition-colors"
           >
             <ShoppingCart className="w-5 h-5" />
             {cartCount > 0 && (
@@ -48,9 +62,9 @@ const Navbar = () => {
           </button>
 
           {/* User */}
-          <Link 
+          <Link
             to="/dashboard"
-            className="w-10 h-10 flex items-center justify-center text-primary-foreground/90 hover:text-primary-foreground transition-colors"
+            className="w-10 h-10 flex items-center justify-center text-[#656565] hover:text-primary transition-colors"
           >
             <User className="w-5 h-5" />
           </Link>
