@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import productFresh from "@/assets/product-fresh.jpg";
 import productDry from "@/assets/product-dry.jpg";
@@ -9,25 +10,25 @@ const categories = [
     title: "Fresh Mushrooms",
     subtitle: "Farm-fresh, delivered daily",
     image: productFresh,
-    link: "#",
+    slug: "fresh-mushrooms",
   },
   {
     title: "Dried Mushrooms",
     subtitle: "Long-lasting, intense flavor",
     image: productDry,
-    link: "#",
+    slug: "dried-mushrooms",
   },
   {
     title: "Mushroom Powder",
     subtitle: "Superfood supplements",
     image: productPowder,
-    link: "#",
+    slug: "mushroom-powder",
   },
   {
-    title: "Farming Equipment",
+    title: "Growing Supplies",
     subtitle: "Start your own farm",
     image: productEquipment,
-    link: "#",
+    slug: "growing-supplies",
   },
 ];
 
@@ -48,9 +49,9 @@ const Categories = () => {
         {/* Category Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {categories.map((category, index) => (
-            <a
+            <Link
               key={category.title}
-              href={category.link}
+              to={`/products/${category.slug}`}
               className="group relative aspect-[4/3] overflow-hidden cursor-pointer animate-fade-up"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
@@ -77,7 +78,7 @@ const Categories = () => {
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-2" />
                 </div>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
