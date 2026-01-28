@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { ShoppingCart, User, Search } from "lucide-react";
 import logo from "@/assets/bd-mushroom-logo.png";
+import { useCart } from "@/context/CartContext";
 
 const Navbar = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { getCartCount, setIsCartOpen } = useCart();
+  
+  const cartCount = getCartCount();
 
   return (
     <header className="fixed top-0 left-16 md:left-20 right-0 z-40 bg-transparent">
@@ -12,13 +16,13 @@ const Navbar = () => {
         {/* Logo - Centered */}
         <div className="flex-1" />
         
-        <div className="flex items-center justify-center">
+        <Link to="/" className="flex items-center justify-center">
           <img 
             src={logo} 
             alt="BD Mushroom - All About Mushroom" 
             className="h-16 md:h-20 w-auto"
           />
-        </div>
+        </Link>
 
         {/* Right Section */}
         <div className="flex-1 flex items-center justify-end gap-4">
@@ -31,17 +35,25 @@ const Navbar = () => {
           </button>
 
           {/* Cart */}
-          <button className="relative w-10 h-10 flex items-center justify-center text-primary-foreground/90 hover:text-primary-foreground transition-colors">
+          <button 
+            onClick={() => setIsCartOpen(true)}
+            className="relative w-10 h-10 flex items-center justify-center text-primary-foreground/90 hover:text-primary-foreground transition-colors"
+          >
             <ShoppingCart className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
-              3
-            </span>
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
+                {cartCount > 9 ? '9+' : cartCount}
+              </span>
+            )}
           </button>
 
           {/* User */}
-          <button className="w-10 h-10 flex items-center justify-center text-primary-foreground/90 hover:text-primary-foreground transition-colors">
+          <Link 
+            to="/dashboard"
+            className="w-10 h-10 flex items-center justify-center text-primary-foreground/90 hover:text-primary-foreground transition-colors"
+          >
             <User className="w-5 h-5" />
-          </button>
+          </Link>
         </div>
       </div>
 
