@@ -1,5 +1,5 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/bdmushroom/dev.bdmushroom.com/
+    - export DEPLOYPATH=$HOME/public_html/
     - /bin/cp -R dist/* $DEPLOYPATH
