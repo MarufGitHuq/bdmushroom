@@ -17,5 +17,5 @@ export default defineConfig(({ command, mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: command === 'build' ? './' : '/',
+  base: './',
 }));
