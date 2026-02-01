@@ -46,13 +46,13 @@ const AIChatWindow = () => {
 
   const processQuery = (query: string): Message => {
     const queryLower = query.toLowerCase();
-    
+
     // Check for recommendation types
     if (queryLower.includes('featured') || queryLower.includes('popular') || queryLower.includes('best')) {
       const results = getProductRecommendations('featured');
       return createProductMessage(`Here are our featured products:`, results.products);
     }
-    
+
     if (queryLower.includes('sale') || queryLower.includes('discount') || queryLower.includes('offer')) {
       const results = getProductRecommendations('sale');
       if (results.products.length === 0) {
@@ -60,12 +60,12 @@ const AIChatWindow = () => {
       }
       return createProductMessage(`🏷️ Here are our current sale items:`, results.products);
     }
-    
+
     if (queryLower.includes('fresh')) {
       const results = getProductRecommendations('fresh');
       return createProductMessage(`🌿 Here are our fresh mushroom options:`, results.products);
     }
-    
+
     if (queryLower.includes('immune') || queryLower.includes('health') || queryLower.includes('medicinal') || queryLower.includes('powder')) {
       const results = getProductRecommendations('medicinal');
       return createProductMessage(`💪 These mushroom powders are great for health:`, results.products);
@@ -146,7 +146,7 @@ const AIChatWindow = () => {
   const handleQuickAdd = async (slug: string) => {
     const product = await getProductBySlug(slug);
     if (product) {
-      addToCart(product);
+      addToCart(product.id, 1);
     }
   };
 
@@ -162,16 +162,15 @@ const AIChatWindow = () => {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center ${isOpen ? 'scale-0' : 'scale-100'}`}
+        className={`fixed bottom-20 md:bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center ${isOpen ? 'scale-0' : 'scale-100'}`}
       >
         <MessageCircle className="w-6 h-6" />
       </button>
 
       {/* Chat Window */}
-      <div 
-        className={`fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] bg-background border border-border rounded-2xl shadow-2xl transition-all duration-300 ${
-          isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'
-        }`}
+      <div
+        className={`fixed bottom-20 md:bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] bg-background border border-border rounded-2xl shadow-2xl transition-all duration-300 ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'
+          }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground rounded-t-2xl">
@@ -184,9 +183,9 @@ const AIChatWindow = () => {
               <p className="text-xs opacity-80">Ask me about products</p>
             </div>
           </div>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="text-primary-foreground hover:bg-primary-foreground/20"
             onClick={() => setIsOpen(false)}
           >
@@ -198,28 +197,27 @@ const AIChatWindow = () => {
         <ScrollArea className="h-[350px] p-4">
           <div className="space-y-4">
             {messages.map(message => (
-              <div 
+              <div
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div 
-                  className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                    message.role === 'user' 
-                      ? 'bg-primary text-primary-foreground rounded-br-md' 
+                <div
+                  className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.role === 'user'
+                      ? 'bg-primary text-primary-foreground rounded-br-md'
                       : 'bg-muted rounded-bl-md'
-                  }`}
+                    }`}
                 >
                   <p className="text-sm whitespace-pre-line">{message.content}</p>
-                  
+
                   {/* Product Cards */}
                   {message.products && message.products.length > 0 && (
                     <div className="mt-3 space-y-2">
                       {message.products.map(product => (
-                        <div 
+                        <div
                           key={product.id}
                           className="bg-background rounded-lg p-3 border border-border"
                         >
-                          <Link 
+                          <Link
                             to={`/product/${product.slug}`}
                             onClick={() => setIsOpen(false)}
                             className="font-medium text-sm hover:text-primary transition-colors"
@@ -228,8 +226,8 @@ const AIChatWindow = () => {
                           </Link>
                           <div className="flex items-center justify-between mt-2">
                             <span className="text-sm font-bold text-secondary">{product.price}</span>
-                            <Button 
-                              size="sm" 
+                            <Button
+                              size="sm"
                               variant="secondary"
                               className="h-7 text-xs"
                               onClick={() => handleQuickAdd(product.slug)}
@@ -246,7 +244,7 @@ const AIChatWindow = () => {
                 </div>
               </div>
             ))}
-            
+
             {isLoading && (
               <div className="flex justify-start">
                 <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
@@ -254,7 +252,7 @@ const AIChatWindow = () => {
                 </div>
               </div>
             )}
-            
+
             <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
@@ -270,8 +268,8 @@ const AIChatWindow = () => {
               className="flex-1"
               disabled={isLoading}
             />
-            <Button 
-              size="icon" 
+            <Button
+              size="icon"
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
             >

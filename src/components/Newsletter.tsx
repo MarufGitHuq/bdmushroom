@@ -19,8 +19,8 @@ const Newsletter = () => {
   };
 
   return (
-    <section className="py-20 md:py-28 bg-primary ml-16 md:ml-20">
-      <div className="container mx-auto px-6 md:px-10">
+    <section className="py-16 md:py-28 bg-primary ml-0 md:ml-20 transition-all duration-300">
+      <div className="container mx-auto px-4 md:px-10">
         <div className="max-w-2xl">
           {/* Heading */}
           <span className="text-primary-foreground/80 font-semibold uppercase tracking-widest text-sm">
@@ -43,8 +43,8 @@ const Newsletter = () => {
               className="h-14 px-6 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus:border-primary-foreground focus:ring-primary-foreground/30"
               required
             />
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               variant="secondary"
               size="lg"
               className="h-14 px-8 gap-2"

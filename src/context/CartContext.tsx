@@ -1,132 +1,197 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Product, CartItem } from '@/types/commerce';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
+import { API_URL } from '@/lib/api';
+
+interface CartItem {
+  key: string;
+  id: number;
+  name: string;
+  slug: string;
+  quantity: number;
+  price: string;
+  image: string;
+  // To keep compatibility with existing components
+  product: {
+    id: number;
+    name: string;
+    slug: string;
+    price: string;
+    images: { src: string }[];
+  };
+}
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
-  clearCart: () => void;
-  getCartTotal: () => number;
-  getCartCount: () => number;
+  cartTotals: any;
+  loading: boolean;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
+  addToCart: (productId: number, quantity: number) => Promise<void>;
+  updateQuantity: (itemKey: string, quantity: number) => Promise<void>;
+  removeFromCart: (itemKey: string) => Promise<void>;
+  getCart: () => Promise<void>;
+  getCartTotal: () => number;
+  getCartCount: () => number;
+  clearCart: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const CART_STORAGE_KEY = 'bd-mushroom-cart';
+const COCART_URL = `${API_URL}/wp-json/cocart/v2`;
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [cartTotals, setCartTotals] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load cart from localStorage on mount
-  useEffect(() => {
+  const getCartKey = () => {
+    let key = localStorage.getItem('bdm_cart_key');
+    if (!key) {
+      key = Math.random().toString(36).substring(2, 11);
+      localStorage.setItem('bdm_cart_key', key);
+    }
+    return key;
+  };
+
+  const getCart = async () => {
+    setLoading(true);
     try {
-      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-      if (savedCart) {
-        const parsed = JSON.parse(savedCart);
-        if (Array.isArray(parsed)) {
-          setItems(parsed);
+      const response = await axios.get(`${COCART_URL}/cart`, {
+        params: { cart_key: getCartKey() }
+      });
+
+      const cocartItems = response.data.items || [];
+      const mappedItems: CartItem[] = cocartItems.map((item: any) => ({
+        key: item.item_key,
+        id: item.id,
+        name: item.name,
+        slug: item.slug || '',
+        quantity: item.quantity.value,
+        price: (parseFloat(item.price) / 100).toString(), // CoCart usually returns in cents depending on config, but wc-api style is string
+        image: item.featured_image,
+        product: {
+          id: item.id,
+          name: item.name,
+          slug: item.slug || '',
+          price: (parseFloat(item.price) / 100).toString(),
+          images: [{ src: item.featured_image }]
         }
-      }
+      }));
+
+      setItems(mappedItems);
+      setCartTotals(response.data.totals);
     } catch (error) {
-      console.error('Failed to load cart from localStorage:', error);
+      console.error('Error fetching cart:', error);
+    } finally {
+      setLoading(false);
     }
-    setIsInitialized(true);
-  }, []);
+  };
 
-  // Save cart to localStorage whenever it changes (after initialization)
-  useEffect(() => {
-    if (isInitialized) {
-      try {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-      } catch (error) {
-        console.error('Failed to save cart to localStorage:', error);
-      }
+  const addToCart = async (productId: number, quantity: number) => {
+    setLoading(true);
+    try {
+      await axios.post(`${COCART_URL}/cart/add-item`, {
+        id: productId.toString(),
+        quantity: quantity.toString(),
+      }, {
+        params: { cart_key: getCartKey() }
+      });
+      await getCart();
+      setIsCartOpen(true); // Open drawer on add
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    } finally {
+      setLoading(false);
     }
-  }, [items, isInitialized]);
+  };
 
-  const addToCart = useCallback((product: Product, quantity: number = 1) => {
-    setItems(currentItems => {
-      const existingItem = currentItems.find(item => item.product.id === product.id);
-      
-      if (existingItem) {
-        return currentItems.map(item =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
-      
-      return [...currentItems, { product, quantity }];
-    });
-    
-    // Open cart drawer when adding items
-    setIsCartOpen(true);
-  }, []);
-
-  const removeFromCart = useCallback((productId: number) => {
-    setItems(currentItems => 
-      currentItems.filter(item => item.product.id !== productId)
-    );
-  }, []);
-
-  const updateQuantity = useCallback((productId: number, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
+  const updateQuantity = async (itemKey: string, quantity: number) => {
+    if (quantity < 1) {
+      await removeFromCart(itemKey);
       return;
     }
-    
-    setItems(currentItems =>
-      currentItems.map(item =>
-        item.product.id === productId
-          ? { ...item, quantity }
-          : item
-      )
-    );
-  }, [removeFromCart]);
+    setLoading(true);
+    try {
+      await axios.post(`${COCART_URL}/cart/item/${itemKey}`, {
+        quantity: quantity.toString(),
+      }, {
+        params: { cart_key: getCartKey() }
+      });
+      await getCart();
+    } catch (error) {
+      console.error('Error updating cart:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const clearCart = useCallback(() => {
-    setItems([]);
+  const removeFromCart = async (itemKey: string) => {
+    setLoading(true);
+    try {
+      await axios.delete(`${COCART_URL}/cart/item/${itemKey}`, {
+        params: { cart_key: getCartKey() }
+      });
+      await getCart();
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearCart = async () => {
+    setLoading(true);
+    try {
+      await axios.post(`${COCART_URL}/cart/clear`, {}, {
+        params: { cart_key: getCartKey() }
+      });
+      setItems([]);
+      setCartTotals(null);
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getCartTotal = () => {
+    if (!cartTotals) return 0;
+    return parseFloat(cartTotals.total) / 100 || 0; // CoCart totals are often in cents
+  };
+
+  const getCartCount = () => {
+    return items.reduce((acc, item) => acc + item.quantity, 0);
+  };
+
+  useEffect(() => {
+    getCart();
   }, []);
 
-  const getCartTotal = useCallback(() => {
-    return items.reduce((total, item) => {
-      const price = parseFloat(item.product.price);
-      return total + (price * item.quantity);
-    }, 0);
-  }, [items]);
-
-  const getCartCount = useCallback(() => {
-    return items.reduce((count, item) => count + item.quantity, 0);
-  }, [items]);
-
   return (
-    <CartContext.Provider
-      value={{
-        items,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        getCartTotal,
-        getCartCount,
-        isCartOpen,
-        setIsCartOpen
-      }}
-    >
+    <CartContext.Provider value={{
+      items,
+      cartTotals,
+      loading,
+      isCartOpen,
+      setIsCartOpen,
+      addToCart,
+      updateQuantity,
+      removeFromCart,
+      getCart,
+      getCartTotal,
+      getCartCount,
+      clearCart
+    }}>
       {children}
     </CartContext.Provider>
   );
-}
+};
 
-export function useCart() {
+export const useCart = () => {
   const context = useContext(CartContext);
   if (context === undefined) {
     throw new Error('useCart must be used within a CartProvider');
   }
   return context;
-}
+};

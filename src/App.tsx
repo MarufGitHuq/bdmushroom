@@ -17,6 +17,8 @@ import AIChatWindow from "./components/AIChatWindow";
 
 const queryClient = new QueryClient();
 
+import Profile from "./pages/Profile";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <CartProvider>
@@ -34,6 +36,7 @@ const App = () => (
             <Route path="/library" element={<Library />} />
             <Route path="/library/:slug" element={<LibraryDetail />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -365,6 +365,8 @@ export const mockMushroomLibrary: MushroomSpecies[] = [
   }
 ];
 
+import { apiFetch } from '@/lib/api';
+
 // API Functions (matching WooCommerce REST API patterns)
 
 export async function getProducts(params?: {
@@ -372,72 +374,71 @@ export async function getProducts(params?: {
   search?: string;
   featured?: boolean;
   per_page?: number;
-  orderby?: 'price' | 'name' | 'date';
+  orderby?: 'price' | 'name' | 'date' | 'id' | 'include' | 'title' | 'slug';
   order?: 'asc' | 'desc';
 }): Promise<Product[]> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 100));
-  
-  let filtered = [...mockProducts];
-  
-  if (params?.category) {
-    filtered = filtered.filter(p => 
-      p.categories.some(c => c.slug === params.category)
-    );
-  }
-  
-  if (params?.search) {
-    const searchLower = params.search.toLowerCase();
-    filtered = filtered.filter(p => 
-      p.name.toLowerCase().includes(searchLower) ||
-      p.description.toLowerCase().includes(searchLower)
-    );
-  }
-  
-  if (params?.featured) {
-    filtered = filtered.filter(p => p.featured);
-  }
-  
-  // Sorting
-  if (params?.orderby === 'price') {
-    filtered.sort((a, b) => {
-      const priceA = parseFloat(a.price);
-      const priceB = parseFloat(b.price);
-      return params.order === 'desc' ? priceB - priceA : priceA - priceB;
+  try {
+    const data = await apiFetch("products", {
+      ...params,
+      category: params?.category ? params.category : undefined,
     });
-  } else if (params?.orderby === 'name') {
-    filtered.sort((a, b) => {
-      return params.order === 'desc' 
-        ? b.name.localeCompare(a.name)
-        : a.name.localeCompare(b.name);
-    });
+    return data;
+  } catch (error) {
+    console.error('getProducts failed, using mock data:', error);
+    // Basic filtering for mock products to simulate API behavior
+    let filtered = [...mockProducts];
+    if (params?.category) {
+      filtered = filtered.filter(p => p.categories.some(c => c.slug === params.category));
+    }
+    return filtered as any;
   }
-  
-  if (params?.per_page) {
-    filtered = filtered.slice(0, params.per_page);
-  }
-  
-  return filtered;
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  await new Promise(resolve => setTimeout(resolve, 50));
-  return mockProducts.find(p => p.slug === slug) || null;
+  try {
+    const data = await apiFetch("products", {
+      slug: slug
+    });
+    return data[0] || null;
+  } catch (error) {
+    console.error('getProductBySlug failed, using mock data:', error);
+    return mockProducts.find(p => p.slug === slug) as any || null;
+  }
 }
 
 export async function getProductById(id: number): Promise<Product | null> {
-  await new Promise(resolve => setTimeout(resolve, 50));
-  return mockProducts.find(p => p.id === id) || null;
+  try {
+    const data = await apiFetch(`products/${id}`);
+    return data;
+  } catch (error) {
+    console.error('getProductById failed, using mock data:', error);
+    return mockProducts.find(p => p.id === id) as any || null;
+  }
 }
 
 export async function getCategories(): Promise<Category[]> {
-  await new Promise(resolve => setTimeout(resolve, 50));
-  return mockCategories;
+  try {
+    const data = await apiFetch("products/categories", {
+      per_page: 100,
+      hide_empty: true
+    });
+    return data;
+  } catch (error) {
+    console.error('getCategories failed, using mock data:', error);
+    return mockCategories;
+  }
 }
 
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
-  await new Promise(resolve => setTimeout(resolve, 50));
-  return mockCategories.find(c => c.slug === slug) || null;
+  try {
+    const data = await apiFetch("products/categories", {
+      slug: slug
+    });
+    return data[0] || null;
+  } catch (error) {
+    console.error('getCategoryBySlug failed, using mock data:', error);
+    return mockCategories.find(c => c.slug === slug) || null;
+  }
 }
 
 export async function checkInventory(productId: number): Promise<{
@@ -445,38 +446,46 @@ export async function checkInventory(productId: number): Promise<{
   quantity: number | null;
   status: 'instock' | 'outofstock' | 'onbackorder';
 }> {
-  await new Promise(resolve => setTimeout(resolve, 50));
-  const product = mockProducts.find(p => p.id === productId);
-  
-  if (!product) {
-    return { inStock: false, quantity: 0, status: 'outofstock' };
+  try {
+    const product = await getProductById(productId);
+    if (!product) {
+      return { inStock: false, quantity: 0, status: 'outofstock' };
+    }
+
+    return {
+      inStock: product.stock_status === 'instock',
+      quantity: product.stock_quantity,
+      status: product.stock_status as any
+    };
+  } catch (error) {
+    const product = mockProducts.find(p => p.id === productId);
+    return {
+      inStock: product?.stock_status === 'instock',
+      quantity: product?.stock_quantity ?? 0,
+      status: (product?.stock_status as any) || 'outofstock'
+    };
   }
-  
-  return {
-    inStock: product.stock_status === 'instock',
-    quantity: product.stock_quantity,
-    status: product.stock_status
-  };
 }
 
 export async function getMushroomLibrary(): Promise<MushroomSpecies[]> {
-  await new Promise(resolve => setTimeout(resolve, 50));
   return mockMushroomLibrary;
 }
 
 export async function getMushroomBySlug(slug: string): Promise<MushroomSpecies | null> {
-  await new Promise(resolve => setTimeout(resolve, 50));
   return mockMushroomLibrary.find(m => m.slug === slug) || null;
 }
 
 export async function getRelatedProducts(productId: number, limit: number = 4): Promise<Product[]> {
-  await new Promise(resolve => setTimeout(resolve, 50));
-  const product = mockProducts.find(p => p.id === productId);
-  
-  if (!product) return [];
-  
-  const categorySlug = product.categories[0]?.slug;
-  return mockProducts
-    .filter(p => p.id !== productId && p.categories.some(c => c.slug === categorySlug))
-    .slice(0, limit);
+  try {
+    const data = await apiFetch("products", {
+      exclude: [productId.toString()],
+      per_page: limit
+    });
+    return data;
+  } catch (error) {
+    const categorySlug = mockProducts.find(p => p.id === productId)?.categories[0]?.slug;
+    return mockProducts
+      .filter(p => p.id !== productId && p.categories.some(c => c.slug === categorySlug))
+      .slice(0, limit) as any;
+  }
 }

@@ -3,19 +3,19 @@ import logo from "@/assets/bd-mushroom-logo.png";
 
 const Footer = () => {
   return (
-    <footer className="bg-charcoal text-primary-foreground ml-16 md:ml-20">
+    <footer className="bg-charcoal text-primary-foreground ml-0 md:ml-20 transition-all duration-300">
       {/* Main Footer */}
-      <div className="container mx-auto px-6 md:px-10 py-16 md:py-20">
+      <div className="container mx-auto px-4 md:px-10 py-12 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <img 
-              src={logo} 
-              alt="BD Mushroom" 
+            <img
+              src={logo}
+              alt="BD Mushroom"
               className="h-20 w-auto mb-6 brightness-0 invert"
             />
             <p className="text-primary-foreground/70 leading-relaxed">
-              Bangladesh's premier destination for organic mushrooms and farming supplies. 
+              Bangladesh's premier destination for organic mushrooms and farming supplies.
               From farm to table, quality you can trust.
             </p>
           </div>

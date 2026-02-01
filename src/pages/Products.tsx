@@ -28,30 +28,37 @@ import CartDrawer from "@/components/CartDrawer";
 const Products = () => {
   const { category: categorySlug } = useParams<{ category: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(categorySlug || null);
   const [sortBy, setSortBy] = useState<string>(searchParams.get('sort') || 'default');
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      
-      const [productsData, categoriesData] = await Promise.all([
-        getProducts({
-          category: selectedCategory || undefined,
-          orderby: sortBy === 'price-asc' || sortBy === 'price-desc' ? 'price' : 
-                   sortBy === 'name' ? 'name' : undefined,
-          order: sortBy === 'price-desc' ? 'desc' : 'asc'
-        }),
-        getCategories()
-      ]);
-      
-      setProducts(productsData);
-      setCategories(categoriesData);
-      setLoading(false);
+      try {
+        const [productsData, categoriesData] = await Promise.all([
+          getProducts({
+            category: selectedCategory || undefined,
+            orderby: sortBy === 'price-asc' || sortBy === 'price-desc' ? 'price' :
+              sortBy === 'name' ? 'name' : undefined,
+            order: sortBy === 'price-desc' ? 'desc' : 'asc'
+          }),
+          getCategories()
+        ]);
+
+        setProducts(productsData);
+        setCategories(categoriesData);
+        setIsOffline(false);
+      } catch (err) {
+        console.error("Fetch data failed, enabling offline mode:", err);
+        setIsOffline(true);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
@@ -83,9 +90,8 @@ const Products = () => {
     <div className="space-y-2">
       <button
         onClick={() => handleCategoryChange(null)}
-        className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-          !selectedCategory ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-        }`}
+        className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${!selectedCategory ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+          }`}
       >
         All Products
       </button>
@@ -93,9 +99,8 @@ const Products = () => {
         <button
           key={category.id}
           onClick={() => handleCategoryChange(category.slug)}
-          className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-            selectedCategory === category.slug ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-          }`}
+          className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${selectedCategory === category.slug ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+            }`}
         >
           {category.name}
           <span className="float-right text-sm opacity-60">({category.count})</span>
@@ -109,8 +114,8 @@ const Products = () => {
       <SideNav />
       <Navbar />
       <CartDrawer />
-      
-      <main className="ml-16 md:ml-20 pt-24">
+
+      <main className="ml-0 md:ml-20 pt-20 md:pt-24 transition-all duration-300">
         {/* Hero Section */}
         <div className="bg-secondary/5 py-12">
           <div className="container mx-auto px-6">
@@ -118,8 +123,8 @@ const Products = () => {
               {currentCategory ? currentCategory.name : 'All Products'}
             </h1>
             <p className="text-muted-foreground text-lg max-w-2xl">
-              {currentCategory 
-                ? currentCategory.description 
+              {currentCategory
+                ? currentCategory.description
                 : 'Explore our complete range of premium mushrooms and growing supplies.'}
             </p>
           </div>
@@ -163,8 +168,8 @@ const Products = () => {
 
                   {/* Active Filters */}
                   {selectedCategory && (
-                    <Badge 
-                      variant="secondary" 
+                    <Badge
+                      variant="secondary"
                       className="gap-1 cursor-pointer"
                       onClick={() => handleCategoryChange(null)}
                     >
@@ -193,7 +198,7 @@ const Products = () => {
               </div>
 
               {/* Product Grid */}
-              <ProductGrid products={products} loading={loading} columns={3} />
+              <ProductGrid products={products} loading={loading} isOffline={isOffline} columns={3} />
             </div>
           </div>
         </div>

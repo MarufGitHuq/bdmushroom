@@ -8,30 +8,30 @@ import QuantitySelector from "./QuantitySelector";
 import { useCart } from "@/context/CartContext";
 
 const CartDrawer = () => {
-  const { 
-    items, 
-    isCartOpen, 
-    setIsCartOpen, 
-    removeFromCart, 
-    updateQuantity, 
+  const {
+    items,
+    isCartOpen,
+    setIsCartOpen,
+    removeFromCart,
+    updateQuantity,
     getCartTotal,
-    clearCart 
+    clearCart
   } = useCart();
 
   const total = getCartTotal();
 
   return (
     <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
-      <SheetContent className="w-full sm:max-w-md flex flex-col bg-background">
+      <SheetContent className="w-full sm:max-w-md flex flex-col bg-background p-0">
         <SheetHeader className="space-y-0 pb-4">
           <div className="flex items-center justify-between">
             <SheetTitle className="font-heading text-xl">
               Your Cart ({items.length})
             </SheetTitle>
             {items.length > 0 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={clearCart}
                 className="text-muted-foreground hover:text-destructive"
               >
@@ -61,53 +61,50 @@ const CartDrawer = () => {
             <ScrollArea className="flex-1 -mx-6 px-6">
               <div className="space-y-4">
                 {items.map((item) => (
-                  <div 
-                    key={item.product.id} 
+                  <div
+                    key={item.key}
                     className="flex gap-4 p-3 bg-card rounded-lg border border-border"
                   >
                     {/* Product Image */}
-                    <Link 
-                      to={`/product/${item.product.slug}`}
+                    <Link
+                      to={`/product/${item.slug}`}
                       onClick={() => setIsCartOpen(false)}
                       className="shrink-0"
                     >
                       <img
-                        src={item.product.images[0]?.src}
-                        alt={item.product.name}
+                        src={item.image}
+                        alt={item.name}
                         className="w-20 h-20 object-cover rounded-md"
                       />
                     </Link>
 
                     {/* Product Details */}
                     <div className="flex-1 min-w-0">
-                      <Link 
-                        to={`/product/${item.product.slug}`}
+                      <Link
+                        to={`/product/${item.slug}`}
                         onClick={() => setIsCartOpen(false)}
                       >
                         <h4 className="font-medium text-sm line-clamp-2 hover:text-primary transition-colors">
-                          {item.product.name}
+                          {item.name}
                         </h4>
                       </Link>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {item.product.weight}
-                      </p>
                       <p className="font-semibold text-secondary mt-1">
-                        ৳{item.product.price}
+                        ৳{item.price}
                       </p>
 
                       {/* Quantity & Remove */}
                       <div className="flex items-center justify-between mt-2">
                         <QuantitySelector
                           quantity={item.quantity}
-                          onIncrease={() => updateQuantity(item.product.id, item.quantity + 1)}
-                          onDecrease={() => updateQuantity(item.product.id, item.quantity - 1)}
+                          onIncrease={() => updateQuantity(item.key, item.quantity + 1)}
+                          onDecrease={() => updateQuantity(item.key, item.quantity - 1)}
                           size="sm"
                         />
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          onClick={() => removeFromCart(item.product.id)}
+                          onClick={() => removeFromCart(item.key)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -121,7 +118,7 @@ const CartDrawer = () => {
             {/* Footer */}
             <div className="pt-4 space-y-4">
               <Separator />
-              
+
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
@@ -142,8 +139,8 @@ const CartDrawer = () => {
                 </span>
               </div>
 
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 size="lg"
                 asChild
                 onClick={() => setIsCartOpen(false)}
@@ -151,8 +148,8 @@ const CartDrawer = () => {
                 <Link to="/checkout">Proceed to Checkout</Link>
               </Button>
 
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full"
                 onClick={() => setIsCartOpen(false)}
                 asChild

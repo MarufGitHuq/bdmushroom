@@ -30,12 +30,12 @@ const ProductDetail = () => {
       setLoading(true);
       const productData = await getProductBySlug(slug);
       setProduct(productData);
-      
+
       if (productData) {
         const related = await getRelatedProducts(productData.id, 4);
         setRelatedProducts(related);
       }
-      
+
       setLoading(false);
       setQuantity(1);
       setSelectedImage(0);
@@ -46,7 +46,7 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     if (product) {
-      addToCart(product, quantity);
+      addToCart(product.id, quantity);
     }
   };
 
@@ -101,12 +101,12 @@ const ProductDetail = () => {
       <SideNav />
       <Navbar />
       <CartDrawer />
-      
+
       <main className="ml-16 md:ml-20 pt-24">
         <div className="container mx-auto px-6 py-8">
           {/* Breadcrumb */}
-          <Link 
-            to="/products" 
+          <Link
+            to="/products"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -123,16 +123,15 @@ const ProductDetail = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              
+
               {product.images.length > 1 && (
                 <div className="flex gap-4">
                   {product.images.map((image, index) => (
                     <button
                       key={image.id}
                       onClick={() => setSelectedImage(index)}
-                      className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
-                        selectedImage === index ? 'border-primary' : 'border-transparent'
-                      }`}
+                      className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-primary' : 'border-transparent'
+                        }`}
                     >
                       <img
                         src={image.src}
@@ -211,8 +210,8 @@ const ProductDetail = () => {
                   />
                 </div>
 
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   className="w-full text-lg"
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
@@ -252,26 +251,26 @@ const ProductDetail = () => {
           <div className="mt-16">
             <Tabs defaultValue="description" className="w-full">
               <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
-                <TabsTrigger 
+                <TabsTrigger
                   value="description"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3"
                 >
                   Description
                 </TabsTrigger>
-                <TabsTrigger 
+                <TabsTrigger
                   value="details"
                   className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-6 py-3"
                 >
                   Details
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="description" className="pt-6">
                 <div className="prose prose-lg max-w-none text-muted-foreground">
                   <p>{product.description}</p>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="details" className="pt-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div>
@@ -289,8 +288,8 @@ const ProductDetail = () => {
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Availability</p>
                     <p className="font-medium">
-                      {product.stock_status === 'instock' ? 'In Stock' : 
-                       product.stock_status === 'onbackorder' ? 'On Backorder' : 'Out of Stock'}
+                      {product.stock_status === 'instock' ? 'In Stock' :
+                        product.stock_status === 'onbackorder' ? 'On Backorder' : 'Out of Stock'}
                     </p>
                   </div>
                 </div>

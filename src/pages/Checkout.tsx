@@ -9,10 +9,11 @@ import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCart } from "@/context/CartContext";
 import { ShippingAddress } from "@/types/commerce";
-import Navbar from "@/components/Navbar";
 import SideNav from "@/components/SideNav";
+import Navbar from "@/components/Navbar";
 import CartDrawer from "@/components/CartDrawer";
 import { useToast } from "@/hooks/use-toast";
+import { triggerN8N } from "@/services/automationService";
 import { z } from "zod";
 
 const shippingSchema = z.object({
@@ -30,7 +31,7 @@ const Checkout = () => {
   const { items, getCartTotal, clearCart } = useCart();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [paymentMethod, setPaymentMethod] = useState<'woocommerce' | 'whatsapp'>('whatsapp');
   const [formData, setFormData] = useState<ShippingAddress>({
     firstName: '',
@@ -60,7 +61,7 @@ const Checkout = () => {
 
   const validateForm = (): boolean => {
     const result = shippingSchema.safeParse(formData);
-    
+
     if (!result.success) {
       const newErrors: Record<string, string> = {};
       result.error.errors.forEach(err => {
@@ -71,13 +72,13 @@ const Checkout = () => {
       setErrors(newErrors);
       return false;
     }
-    
+
     setErrors({});
     return true;
   };
 
   const generateWhatsAppMessage = (): string => {
-    const itemsList = items.map(item => 
+    const itemsList = items.map(item =>
       `• ${item.product.name} x ${item.quantity} = ৳${(parseFloat(item.product.price) * item.quantity).toFixed(0)}`
     ).join('\n');
 
@@ -106,7 +107,7 @@ ${formData.notes ? `*Notes:* ${formData.notes}` : ''}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast({
         title: "Please fix the errors",
@@ -131,8 +132,15 @@ ${formData.notes ? `*Notes:* ${formData.notes}` : ''}`;
       // Open WhatsApp with pre-filled message
       const whatsappNumber = '8801712345678'; // Replace with actual BD Mushroom WhatsApp number
       const message = generateWhatsAppMessage();
-      window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank');
-      
+      // Trigger Automation
+      await triggerN8N('order_placed', {
+        customer: formData,
+        items: items.map(i => ({ name: i.product.name, qty: i.quantity, price: parseFloat(i.product.price) })),
+        total: grandTotal,
+        payment_method: paymentMethod,
+        timestamp: new Date().toISOString()
+      });
+
       // Clear cart and redirect
       clearCart();
       navigate('/order-confirmation');
@@ -143,7 +151,7 @@ ${formData.notes ? `*Notes:* ${formData.notes}` : ''}`;
         title: "WooCommerce Integration",
         description: "This will redirect to WooCommerce checkout in production.",
       });
-      
+
       // Simulate redirect
       setTimeout(() => {
         clearCart();
@@ -178,12 +186,12 @@ ${formData.notes ? `*Notes:* ${formData.notes}` : ''}`;
       <SideNav />
       <Navbar />
       <CartDrawer />
-      
+
       <main className="ml-16 md:ml-20 pt-24">
         <div className="container mx-auto px-6 py-8">
           {/* Breadcrumb */}
-          <Link 
-            to="/products" 
+          <Link
+            to="/products"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -202,7 +210,7 @@ ${formData.notes ? `*Notes:* ${formData.notes}` : ''}`;
                     <User className="w-5 h-5 text-secondary" />
                     Contact Information
                   </h2>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">First Name *</Label>
@@ -260,7 +268,7 @@ ${formData.notes ? `*Notes:* ${formData.notes}` : ''}`;
                     <MapPin className="w-5 h-5 text-secondary" />
                     Shipping Address
                   </h2>
-                  
+
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="address">Full Address *</Label>
@@ -318,16 +326,15 @@ ${formData.notes ? `*Notes:* ${formData.notes}` : ''}`;
                     <CreditCard className="w-5 h-5 text-secondary" />
                     Payment Method
                   </h2>
-                  
-                  <RadioGroup 
-                    value={paymentMethod} 
+
+                  <RadioGroup
+                    value={paymentMethod}
                     onValueChange={(v) => setPaymentMethod(v as 'woocommerce' | 'whatsapp')}
                     className="space-y-4"
                   >
-                    <label 
-                      className={`flex items-start gap-4 p-4 rounded-lg border cursor-pointer transition-colors ${
-                        paymentMethod === 'whatsapp' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'
-                      }`}
+                    <label
+                      className={`flex items-start gap-4 p-4 rounded-lg border cursor-pointer transition-colors ${paymentMethod === 'whatsapp' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'
+                        }`}
                     >
                       <RadioGroupItem value="whatsapp" id="whatsapp" className="mt-1" />
                       <div className="flex-1">
@@ -341,10 +348,9 @@ ${formData.notes ? `*Notes:* ${formData.notes}` : ''}`;
                       </div>
                     </label>
 
-                    <label 
-                      className={`flex items-start gap-4 p-4 rounded-lg border cursor-pointer transition-colors ${
-                        paymentMethod === 'woocommerce' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'
-                      }`}
+                    <label
+                      className={`flex items-start gap-4 p-4 rounded-lg border cursor-pointer transition-colors ${paymentMethod === 'woocommerce' ? 'border-primary bg-primary/5' : 'border-border hover:border-muted-foreground'
+                        }`}
                     >
                       <RadioGroupItem value="woocommerce" id="woocommerce" className="mt-1" />
                       <div className="flex-1">
@@ -365,7 +371,7 @@ ${formData.notes ? `*Notes:* ${formData.notes}` : ''}`;
               <div className="lg:col-span-1">
                 <div className="bg-card rounded-xl p-6 border border-border sticky top-28">
                   <h2 className="font-heading text-xl font-semibold mb-6">Order Summary</h2>
-                  
+
                   <div className="space-y-4 max-h-64 overflow-y-auto">
                     {items.map(item => (
                       <div key={item.product.id} className="flex gap-3">
@@ -410,14 +416,14 @@ ${formData.notes ? `*Notes:* ${formData.notes}` : ''}`;
                     <span className="text-secondary">৳{grandTotal.toFixed(0)}</span>
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    size="lg" 
+                  <Button
+                    type="submit"
+                    size="lg"
                     className="w-full mt-6"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? 'Processing...' : 
-                     paymentMethod === 'whatsapp' ? 'Order via WhatsApp' : 'Complete Payment'}
+                    {isSubmitting ? 'Processing...' :
+                      paymentMethod === 'whatsapp' ? 'Order via WhatsApp' : 'Complete Payment'}
                   </Button>
 
                   <p className="text-xs text-muted-foreground text-center mt-4">
