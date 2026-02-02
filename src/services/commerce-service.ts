@@ -489,3 +489,41 @@ export async function getRelatedProducts(productId: number, limit: number = 4): 
       .slice(0, limit) as any;
   }
 }
+export async function registerUser(userData: {
+  email: string;
+  first_name: string;
+  last_name: string;
+  username: string;
+  password?: string;
+}): Promise<any> {
+  try {
+    const data = await apiFetch("customers", {}, "POST", userData);
+    return data;
+  } catch (error: any) {
+    console.error('registerUser failed:', error);
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error("Registration failed. Please try again later.");
+  }
+}
+
+export async function getCustomerOrders(customerId: number): Promise<any[]> {
+  try {
+    const data = await apiFetch("orders", { customer: customerId });
+    return data;
+  } catch (error) {
+    console.error('getCustomerOrders failed, returning empty list:', error);
+    return [];
+  }
+}
+
+export async function getCustomerByEmail(email: string): Promise<any | null> {
+  try {
+    const data = await apiFetch("customers", { email: email });
+    return data[0] || null;
+  } catch (error) {
+    console.error('getCustomerByEmail failed:', error);
+    return null;
+  }
+}

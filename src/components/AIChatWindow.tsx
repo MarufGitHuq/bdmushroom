@@ -22,7 +22,12 @@ interface Message {
   }[];
 }
 
+import { useAuth } from "@/hooks/useAuth";
+import { getCustomerOrders, getCustomerByEmail } from "@/services/commerce-service";
+
 const AIChatWindow = () => {
+  const { user, isAuthenticated } = useAuth();
+  const [customerContext, setCustomerContext] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -36,6 +41,45 @@ const AIChatWindow = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { addToCart } = useCart();
 
+  // 1. Data Gathering Logic: Fetching Customer History
+  useEffect(() => {
+    const fetchContext = async () => {
+      if (isAuthenticated && user?.user_email) {
+        try {
+          const customer = await getCustomerByEmail(user.user_email);
+          if (customer) {
+            const orders = await getCustomerOrders(customer.id);
+            const history = orders.map(o => ({
+              id: o.id,
+              items: o.line_items.map((i: any) => i.name).join(', '),
+              status: o.status
+            }));
+
+            setCustomerContext({
+              name: customer.first_name || user.user_display_name,
+              lastOrder: history[0] || null,
+              orderHistory: history
+            });
+          }
+        } catch (error) {
+          console.warn("AI Context gathering failed:", error);
+        }
+      } else {
+        setCustomerContext(null);
+      }
+    };
+    fetchContext();
+  }, [isAuthenticated, user]);
+
+  const getAssistantContext = () => {
+    if (!customerContext) return "Unknown Guest";
+    const lastOrderStr = customerContext.lastOrder
+      ? `Last Order: #${customerContext.lastOrder.id} (${customerContext.lastOrder.items}), Status: ${customerContext.lastOrder.status}`
+      : "No previous orders";
+
+    return `Customer: ${customerContext.name}. ${lastOrderStr}.`;
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -43,6 +87,18 @@ const AIChatWindow = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    const handleOpenChat = (e: any) => {
+      setIsOpen(true);
+      if (e.detail?.message) {
+        // Automatically send the message from the dashboard trigger
+        handleSend(e.detail.message);
+      }
+    };
+    window.addEventListener('open-ai-chat', handleOpenChat);
+    return () => window.removeEventListener('open-ai-chat', handleOpenChat);
+  }, [customerContext]); // Re-bind if context changes
 
   const processQuery = (query: string): Message => {
     const queryLower = query.toLowerCase();
@@ -122,13 +178,23 @@ const AIChatWindow = () => {
     };
   };
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const handleSend = async (customMessage?: string) => {
+    const textToSend = customMessage || input;
+    if (!textToSend.trim() || isLoading) return;
+
+    // 2. Contextual Handshake: Define persona and context
+    if (customerContext) {
+      console.log("--- AI SYSTEM HANDSHAKE ---");
+      console.log(`Persona: BDMushroom Expert`);
+      console.log(`Context: ${getAssistantContext()}`);
+      console.log(`Instruction: Be helpful, scientific, and concise.`);
+      console.log("----------------------------");
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: input.trim()
+      content: textToSend.trim()
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -175,12 +241,25 @@ const AIChatWindow = () => {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground rounded-t-2xl">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center relative">
               🍄
+              {customerContext && (
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-primary rounded-full" title="Context Loaded" />
+              )}
             </div>
             <div>
-              <h3 className="font-semibold">Mushroom Assistant</h3>
-              <p className="text-xs opacity-80">Ask me about products</p>
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold">Mushroom Assistant</h3>
+                {customerContext && (
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                    <span className="text-[10px] uppercase tracking-tighter opacity-70 font-bold">Known</span>
+                  </div>
+                )}
+              </div>
+              <p className="text-xs opacity-80">
+                {customerContext ? `Hi, ${customerContext.name}!` : "Ask me about products"}
+              </p>
             </div>
           </div>
           <Button
@@ -203,8 +282,8 @@ const AIChatWindow = () => {
               >
                 <div
                   className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.role === 'user'
-                      ? 'bg-primary text-primary-foreground rounded-br-md'
-                      : 'bg-muted rounded-bl-md'
+                    ? 'bg-primary text-primary-foreground rounded-br-md'
+                    : 'bg-muted rounded-bl-md'
                     }`}
                 >
                   <p className="text-sm whitespace-pre-line">{message.content}</p>
@@ -270,7 +349,7 @@ const AIChatWindow = () => {
             />
             <Button
               size="icon"
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={!input.trim() || isLoading}
             >
               <Send className="w-4 h-4" />

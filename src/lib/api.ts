@@ -21,18 +21,54 @@ export const wcApi = new WooCommerceRestApi({
 });
 
 // Direct Fetch Fallback (Safer browser-side)
-export const apiFetch = async (endpoint: string, params = {}) => {
+export const apiFetch = async (endpoint: string, params = {}, method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET', data?: any) => {
   const cleanUrl = url.endsWith('/') ? url.slice(0, -1) : url;
-  const fullUrl = `${cleanUrl}/wp-json/wc/v3/${endpoint}`;
+  const urlWithParams = new URL(`${cleanUrl}/wp-json/wc/v3/${endpoint}`);
 
-  const response = await axios.get(fullUrl, {
-    params: {
-      ...params,
-      consumer_key: consumerKey,
-      consumer_secret: consumerSecret,
+  // Add credentials to params
+  const allParams: any = {
+    ...params,
+    consumer_key: consumerKey,
+    consumer_secret: consumerSecret,
+  };
+
+  Object.keys(allParams).forEach(key => {
+    if (allParams[key] !== undefined && allParams[key] !== null) {
+      urlWithParams.searchParams.append(key, allParams[key].toString());
     }
   });
-  return response.data;
+
+  const savedUser = localStorage.getItem('bdm_user');
+  const token = savedUser ? JSON.parse(savedUser).token : null;
+
+  const headers: HeadersInit = {};
+
+  // ONLY send Authorization token for non-public data if needed.
+  // Standard WC Product/Category listing should NOT have a Bearer token if it conflicts with Key/Secret
+  // or triggers CORS preflight issues on production servers.
+  const isPublicEndpoint = ['products', 'categories'].some(e => endpoint.startsWith(e)) && method === 'GET';
+
+  if (token && !isPublicEndpoint) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  if (data && (method === 'POST' || method === 'PUT')) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  const response = await fetch(urlWithParams.toString(), {
+    method,
+    headers,
+    body: data ? JSON.stringify(data) : undefined,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error(`API Error [${response.status}] for ${endpoint}:`, errorData);
+    throw { response: { data: errorData, status: response.status } };
+  }
+
+  return response.json();
 };
 
 export const API_URL = url;

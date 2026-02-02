@@ -78,6 +78,18 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                         )}
                     </Button>
                 </form>
+                <div className="mt-4 text-center text-sm text-muted-foreground">
+                    Don't have an account?{" "}
+                    <button
+                        onClick={() => {
+                            onClose();
+                            window.location.href = '/register';
+                        }}
+                        className="text-primary font-semibold hover:underline"
+                    >
+                        Register
+                    </button>
+                </div>
             </DialogContent>
         </Dialog>
     );

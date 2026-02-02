@@ -22,9 +22,18 @@ const Navbar = () => {
       setIsScrolled(window.scrollY > 20);
     };
 
+    // Check for login query param
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('login') === 'true' && !isAuthenticated) {
+      setIsLoginModalOpen(true);
+      // Clean up the URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isAuthenticated]);
 
   const handleUserClick = () => {
     if (!isAuthenticated) {
@@ -83,6 +92,7 @@ const Navbar = () => {
             </Link>
           ) : (
             <button
+              id="user-login-trigger"
               onClick={handleUserClick}
               className="w-10 h-10 flex items-center justify-center text-[#656565] hover:text-primary transition-colors hover:shadow-sm rounded-full"
             >
